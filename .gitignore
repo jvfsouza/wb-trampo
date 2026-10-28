@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# dados gerados pelo robô
+data/
+*.db
+*.xlsx
+
+# link e senha do Apps Script do Google Sheets (nunca vão para o git)
+google_sheets.toml

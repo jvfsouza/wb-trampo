@@ -1,0 +1,8 @@
+# Copie este arquivo para google_sheets.toml e preencha.
+# O google_sheets.toml fica fora do git (tem a senha). Veja o README, seção "Google Sheets".
+
+# "URL do app da Web" que o Apps Script mostra ao implantar (termina em /exec).
+url_script = "https://script.google.com/macros/s/COLE_AQUI_O_ID/exec"
+
+# A mesma senha que você escreveu em SENHA no Apps Script.
+senha = "troque-esta-senha"

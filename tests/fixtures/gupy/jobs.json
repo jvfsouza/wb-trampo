@@ -1,0 +1,57 @@
+{
+  "data": [
+    {
+      "id": 12786122,
+      "name": "Estágio em Desenvolvimento Backend",
+      "applicationDeadline": "2026-12-25T00:00:00.000Z",
+      "description": "<p>Venha fazer parte do nosso time!</p><p>Requisitos:<br>Python<br>SQL</p>",
+      "careerPageName": "Acme Tecnologia",
+      "careerPageUrl": "",
+      "city": "São Paulo",
+      "state": "São Paulo",
+      "workplaceType": "hybrid",
+      "type": "vacancy_type_internship",
+      "publishedDate": "2026-10-26T12:00:00.000Z",
+      "jobUrl": "https://acme.gupy.io/job/eyJqb2JJZCI6MTI3ODYxMjJ9?jobBoardSource=gupy_portal",
+      "badges": {"friendlyBadge": true},
+      "disabilities": true
+    },
+    {
+      "id": 12785031,
+      "name": "Desenvolvedor(a) Backend Java Sênior",
+      "description": "<p>Microsserviços em Java.</p>",
+      "careerPageName": "Grupo Panvel",
+      "city": "Eldorado do Sul",
+      "state": "Rio Grande do Sul",
+      "workplaceType": "remote",
+      "type": "vacancy_type_effective",
+      "publishedDate": "2026-10-26T20:09:04.978Z",
+      "jobUrl": "https://corporativopanvel.gupy.io/job/eyJqb2JJZCI6MTI3ODUwMzF9?jobBoardSource=gupy_portal"
+    },
+    {
+      "id": 12000001,
+      "name": "Estagiário de Dados",
+      "description": "",
+      "careerPageName": "Beta S.A.",
+      "city": "Campinas",
+      "state": "São Paulo",
+      "workplaceType": "on-site",
+      "type": "vacancy_type_effective",
+      "publishedDate": "2026-09-01T09:00:00.000Z",
+      "jobUrl": "https://beta.gupy.io/job/eyJqb2JJZCI6MTIwMDAwMDF9?jobBoardSource=gupy_portal"
+    },
+    {
+      "id": 12000002,
+      "name": "Backend Developer Jr",
+      "description": "<p>Node.js</p>",
+      "careerPageName": "Stefanini Latam",
+      "city": "",
+      "state": "",
+      "workplaceType": "remote",
+      "type": "vacancy_legal_entity",
+      "publishedDate": "2026-10-25T15:30:00.000Z",
+      "jobUrl": "https://stefanini.gupy.io/job/eyJqb2JJZCI6MTIwMDAwMDJ9?jobBoardSource=gupy_portal"
+    }
+  ],
+  "pagination": {"limit": 50, "offset": 0, "total": 4}
+}

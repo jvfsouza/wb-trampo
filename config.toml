@@ -1,0 +1,241 @@
+# ==================================================================
+#  COMO EDITAR AS BUSCAS
+#  - Cada bloco [[buscas]] é UMA busca em UM site.
+#  - Para criar outra busca: copie o bloco inteiro e cole embaixo.
+#  - Para desativar uma busca sem apagar: coloque # no início
+#    de todas as linhas do bloco.
+#  - Campos marcados como (opcional) podem ser apagados.
+#  - Texto vai entre aspas: "assim". Números e true/false, sem aspas.
+#  - Listas usam colchetes: ["remoto", "hibrido"]
+#  - Acentos são opcionais: "hibrido" e "híbrido" funcionam igual
+#    (exceto cidade na Gupy, veja abaixo).
+# ==================================================================
+#
+#  SITES (campo "site", obrigatório em cada busca)
+#
+#  linkedin  Todos os filtros são aplicados pelo próprio LinkedIn
+#            (que às vezes os ignora). Aceita várias palavras.
+#
+#  gupy      Portal da Gupy (portal.gupy.io), vagas de muitas empresas
+#            brasileiras (Itaú, Ambev, Boticário...).
+#            - SALVA TUDO o que a Gupy retornar. O robô não descarta
+#              nada: filtre depois na planilha (colunas Contrato, Nível,
+#              Modalidade, Publicada em).
+#            - palavra_chave é procurada no NOME da vaga: use UMA palavra
+#              ("backend", "estagio", "dados"). "estagio backend" quase
+#              nunca encontra nada.
+#            - local: estado (nome ou sigla, ex. "SP") ou cidade. A cidade
+#              precisa ir COM ACENTO: "São José dos Campos" funciona,
+#              "sao jose dos campos" não encontra nada.
+#            - modalidade: com UM valor a Gupy filtra; com vários, vêm
+#              todas as modalidades.
+#            - nivel e publicada NÃO são usados (a Gupy não tem esses
+#              filtros). Se estiverem preenchidos, são ignorados.
+#            - A Gupy mostra no máximo 100 vagas por busca.
+#
+#  indeed    Não suportado: bloqueia robôs.
+# ==================================================================
+
+[limites]
+# Máximo de vagas lidas por busca (o LinkedIn manda ~10 por página).
+max_vagas_por_busca = 200
+
+# Pausa aleatória entre requisições no LINKEDIN, em segundos.
+#   É o que mais protege o seu IP: o LinkedIn bloqueia por ritmo.
+#   Uma busca de 100 vagas com descrição faz ~110 requisições:
+#      2–5 s  ≈  6 min       5–10 s  ≈ 14 min       8–15 s  ≈ 21 min
+pausa_linkedin_min_s = 25
+pausa_linkedin_max_s = 45
+
+# Pausa aleatória entre requisições nos outros sites (Gupy), em segundos.
+pausa_min_s = 2
+pausa_max_s = 5
+
+# Máximo de requisições por execução (somando todos os sites).
+#   Ao chegar nele o robô salva o que já coletou e termina normalmente;
+#   as buscas restantes ficam para a próxima vez. 0 = sem teto.
+max_requisicoes = 200
+
+# Tempo mínimo, em MINUTOS, entre uma execução e outra. Se rodar antes,
+#   o robô avisa e não busca (para forçar: python -m wb_trampo buscar --forcar).
+#   0 = desliga.
+intervalo_minimo_min = 30
+
+# true = abre cada vaga para pegar descrição, nível e candidatos
+#        (no LinkedIn é 1 requisição a mais POR VAGA)
+# false = só a lista (bem menos requisições)
+buscar_descricao = false
+
+
+
+
+
+
+
+
+
+
+#[[buscas]]
+
+# site: onde buscar (veja a lista no topo): linkedin | gupy
+
+#site = "linkedin"
+
+# palavra_chave: o que você digitaria na caixa de busca do LinkedIn.
+#   Pode ter várias palavras: "estagio backend", "analista de dados".
+#   Dica: incluir o nível no texto ("estagio ...") deixa o resultado mais certeiro.
+
+#palavra_chave = "estagio backend"
+
+# local (opcional): cidade, estado ou país, em texto livre.
+#   Ex.: "São Paulo", "Rio de Janeiro", "Brasil". Apague para qualquer lugar.
+
+#local = "sao paulo"
+
+# modalidade (opcional): uma ou mais de  presencial | hibrido | remoto
+#modalidade = ["presencial", "hibrido"]
+
+# nivel (opcional): um ou mais de
+#   estagio | junior | associado | pleno | senior | diretor | executivo
+#   (no LinkedIn "pleno" e "senior" são o mesmo filtro)
+
+#nivel = ["estagio"]
+
+# publicada (opcional): há quanto tempo a vaga foi publicada, EM SEGUNDOS.
+#   Conta rápida: minutos x 60 | horas x 3600 | dias x 86400
+#
+#      3600 = 1 hora           86400 = 24 horas (1 dia)
+#      7200 = 2 horas         172800 = 2 dias
+#     21600 = 6 horas         604800 = 7 dias (1 semana)
+#     43200 = 12 horas       2592000 = 30 dias (1 mês)
+#
+#   Também aceita os atalhos "24h", "semana" e "mes".
+
+#publicada = 86400
+
+
+# Exemplo: todas as vagas de backend da Gupy em SP (desativado).
+# Tire os # para usar. Para ver só estágios, filtre a coluna
+# "Contrato" ou "Nível" na planilha.
+
+
+#-------------------------------------------------------------------------
+
+
+# ----- Backend -----
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "backend"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "desenvolvedor python"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "desenvolvedor java"
+local = "SP"
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("estágio" OR "junior") AND ("backend" OR "back-end") NOT ("sênior" OR "pleno")'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("estágio" OR "junior") AND ("python" OR "java" OR "node" OR "C#") AND ("API" OR "backend")'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+ 
+ 
+# ----- IA -----
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "inteligência artificial"
+local = "SP"
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("estágio" OR "junior") AND ("IA" OR "AI" OR "LLM" OR "machine learning") AND ("python" OR "backend")'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+ 
+ 
+# ----- Dados, SQL e integração -----
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "engenharia de dados"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "SQL"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "integração de sistemas"
+local = "SP"
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("estágio" OR "junior") AND ("engenheiro de dados" OR "ETL" OR "integração de sistemas" OR "SQL")'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+ 
+ 
+# ----- Analista -----
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "analista de sistemas"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "analista de dados"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "analista de integração"
+local = "SP"
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("analista de sistemas" OR "analista desenvolvedor" OR "analista de integração") AND ("júnior" OR "junior")'
+local = "São Paulo"
+nivel = ["junior"]
+publicada = 86400
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("analista de dados" OR "analista de BI") AND ("júnior" OR "junior" OR "estágio") AND ("SQL" OR "Python")'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+ 
+ 
+# ----- Remoto e entrada -----
+ 
+# [[buscas]]
+# site = "gupy"
+# palavra_chave = "programa de estágio tecnologia"
+# local = "SP"
+  
+# [[buscas]]
+# site = "linkedin"
+# palavra_chave = '("estágio" OR "junior") AND ("backend" OR "dados") AND ("remoto" OR "remote")'
+# local = "Brasil"
+# nivel = ["estagio", "junior"]
+# publicada = 86400

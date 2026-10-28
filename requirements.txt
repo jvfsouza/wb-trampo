@@ -1,0 +1,2 @@
+# Instala o projeto (dependências estão no pyproject.toml) + ferramentas de teste
+-e .[dev]
