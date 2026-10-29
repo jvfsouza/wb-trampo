@@ -44,12 +44,12 @@ max_vagas_por_busca = 200
 #   É o que mais protege o seu IP: o LinkedIn bloqueia por ritmo.
 #   Uma busca de 100 vagas com descrição faz ~110 requisições:
 #      2–5 s  ≈  6 min       5–10 s  ≈ 14 min       8–15 s  ≈ 21 min
-pausa_linkedin_min_s = 25
+pausa_linkedin_min_s = 31
 pausa_linkedin_max_s = 45
 
 # Pausa aleatória entre requisições nos outros sites (Gupy), em segundos.
-pausa_min_s = 2
-pausa_max_s = 5
+pausa_min_s = 10
+pausa_max_s = 15
 
 # Máximo de requisições por execução (somando todos os sites).
 #   Ao chegar nele o robô salva o que já coletou e termina normalmente;
@@ -141,14 +141,14 @@ local = "SP"
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("estágio" OR "junior") AND ("backend" OR "back-end") NOT ("sênior" OR "pleno")'
+palavra_chave = '(estágio OR estagiário OR junior OR júnior) AND (backend OR "back-end" OR "back end") NOT (sênior OR senior OR pleno)'
 local = "São Paulo"
 nivel = ["estagio", "junior"]
 publicada = 86400
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("estágio" OR "junior") AND ("python" OR "java" OR "node" OR "C#") AND ("API" OR "backend")'
+palavra_chave = '(estágio OR junior) AND (python OR java OR node OR "C#") AND (API OR backend) NOT (sênior OR pleno)'
 local = "São Paulo"
 nivel = ["estagio", "junior"]
 publicada = 86400
@@ -163,7 +163,7 @@ local = "SP"
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("estágio" OR "junior") AND ("IA" OR "AI" OR "LLM" OR "machine learning") AND ("python" OR "backend")'
+palavra_chave = '(estágio OR junior) AND (IA OR AI OR LLM OR "machine learning") AND (python OR backend) NOT (sênior OR pleno)'
 local = "São Paulo"
 nivel = ["estagio", "junior"]
 publicada = 86400
@@ -188,43 +188,121 @@ local = "SP"
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("estágio" OR "junior") AND ("engenheiro de dados" OR "ETL" OR "integração de sistemas" OR "SQL")'
+palavra_chave = '(estágio OR junior) AND ("engenheiro de dados" OR ETL OR "integração de sistemas" OR SQL) NOT (sênior OR pleno)'
 local = "São Paulo"
 nivel = ["estagio", "junior"]
 publicada = 86400
  
  
-# ----- Analista -----
+# ----- personalizadas -----
  
 [[buscas]]
 site = "gupy"
-palavra_chave = "analista de sistemas"
+palavra_chave = "estagio backend"
 local = "SP"
  
 [[buscas]]
 site = "gupy"
-palavra_chave = "analista de dados"
+palavra_chave = "estagio fullstack"
 local = "SP"
  
 [[buscas]]
 site = "gupy"
-palavra_chave = "analista de integração"
+palavra_chave = "desenvoldedor"
 local = "SP"
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("analista de sistemas" OR "analista desenvolvedor" OR "analista de integração") AND ("júnior" OR "junior")'
+palavra_chave = 'estagio desenvolvedor'
 local = "São Paulo"
 nivel = ["junior"]
 publicada = 86400
  
 [[buscas]]
 site = "linkedin"
-palavra_chave = '("analista de dados" OR "analista de BI") AND ("júnior" OR "junior" OR "estágio") AND ("SQL" OR "Python")'
+palavra_chave = 'estagio backend'
 local = "São Paulo"
 nivel = ["estagio", "junior"]
 publicada = 86400
  
+ [[buscas]]
+site = "linkedin"
+palavra_chave = 'estagio tecnologia'
+local = "São Paulo"
+nivel = ["estagio", "junior"]
+publicada = 86400
+
+[[buscas]]
+site = "gupy"
+palavra_chave = "itau"
+local = "SP"
+
+[[buscas]]
+site = "gupy"
+palavra_chave = "bradesco"
+local = "SP"
+
+ 
+# ----- Setores preferidos (fintech, bancos, mercado financeiro, startups) -----
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '(estágio OR estagiário OR intern OR internship) AND (tecnologia OR desenvolvimento OR dados OR TI) AND (fintech OR banco OR "mercado financeiro" OR investimentos OR pagamentos)'
+local = "São Paulo e Região"
+nivel = ["estagio"]
+publicada = 86400
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '(estágio OR estagiário OR intern OR internship) AND (tecnologia OR desenvolvimento OR dados OR TI) AND (startup OR "scale-up")'
+local = "São Paulo e Região"
+nivel = ["estagio"]
+publicada = 86400
+ 
+ 
+# ----- Títulos em inglês (presencial/híbrido em SP) -----
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("software engineer intern" OR "software engineering intern" OR "backend intern" OR "data engineering intern" OR "developer intern")'
+local = "São Paulo e Região"
+nivel = ["estagio"]
+publicada = 86400
+ 
+ 
+# ----- Programas de estágio -----
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "programa de estágio tecnologia"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "estágio TI"
+local = "SP"
+ 
+[[buscas]]
+site = "gupy"
+palavra_chave = "estágio tecnologia"
+local = "SP"
+ 
+[[buscas]]
+site = "linkedin"
+palavra_chave = '("programa de estágio" OR "internship program") AND (tecnologia OR TI OR desenvolvimento OR dados)'
+local = "São Paulo e Região"
+nivel = ["estagio"]
+publicada = 86400
+
+[[buscas]]
+site = "gupy"
+palavra_chave = "ESTAGIARIO 6H"
+local = "SP"
+
+[[buscas]]
+site = "gupy"
+palavra_chave = "programa de estagio"
+local = "SP"
  
 # ----- Remoto e entrada -----
  
@@ -239,3 +317,5 @@ publicada = 86400
 # local = "Brasil"
 # nivel = ["estagio", "junior"]
 # publicada = 86400
+
+
