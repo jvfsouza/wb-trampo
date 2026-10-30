@@ -6,6 +6,7 @@ import argparse
 import logging
 import sys
 from datetime import datetime
+from pathlib import Path
 
 from . import config as cfg
 from . import logs
@@ -13,7 +14,7 @@ from .banco import Banco
 from .cliente import HOST_LINKEDIN, Bloqueado, Cliente
 from .exportar import exportar
 from .scraper import executar
-from .sheets import ErroSheets, enviar_novas
+from .sheets import COLUNA_LINK, ErroSheets, enviar_novas, separar_por_filtro
 
 log = logging.getLogger("wb_trampo")
 
@@ -116,7 +117,33 @@ def cmd_exportar(args: argparse.Namespace) -> int:
     return 0
 
 
+def _simular_filtro(args: argparse.Namespace) -> int:
+    """Mostra quais vagas novas passariam no filtro_sheets.toml e quais seriam barradas.
+    Não envia nada e não lê o google_sheets.toml."""
+    try:
+        filtro = cfg.carregar_filtro(Path(args.config).with_name(cfg.ARQUIVO_FILTRO))
+    except ValueError as erro:
+        log.error("Problema no filtro: %s", erro)
+        return 1
+    banco = Banco(args.banco)
+    try:
+        passaram, filtradas = separar_por_filtro(banco, filtro.filtro_sql)
+    finally:
+        banco.fechar()
+    if not filtro.filtro_sql:
+        print("Sem filtro (filtro_sheets.toml ausente ou com filtro_sql vazio): todas iriam para o Sheets.")
+    print(f"Vagas novas da última execução: {len(passaram) + len(filtradas)}. "
+          f"Passam: {len(passaram)}. Filtradas: {len(filtradas)}.")
+    for secao, linhas in (("PASSARAM", passaram), ("FILTRADAS", filtradas)):
+        print(f"\n== {secao} ==")
+        for linha in linhas:
+            print(f"{linha[0]} | {linha[1]} | {linha[COLUNA_LINK]}")
+    return 0
+
+
 def cmd_enviar_sheets(args: argparse.Namespace) -> int:
+    if args.simular:
+        return _simular_filtro(args)
     config = _ler_config(args.config)
     if config is None:
         return 1
@@ -157,6 +184,8 @@ def main(argv: list[str] | None = None) -> int:
     p_sh = sub.add_parser("enviar-sheets",
                           help="envia (de novo) as vagas novas da última execução para o Google Sheets")
     p_sh.add_argument("--config", default="config.toml")
+    p_sh.add_argument("--simular", action="store_true",
+                      help="mostra quais vagas passam no filtro_sheets.toml e quais seriam barradas (não envia)")
     p_sh.set_defaults(func=cmd_enviar_sheets)
 
     args = parser.parse_args(argv)

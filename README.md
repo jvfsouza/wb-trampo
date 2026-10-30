@@ -134,6 +134,7 @@ Rode sempre na raiz do projeto: `.venv\Scripts\python -m wb_trampo <comando>`, o
 | `exportar` | Gera a planilha Excel a partir do banco (sem internet). |
 | `exportar --filtro django --saida django.xlsx` | Planilha só com vagas que citam "django" no título ou na descrição. |
 | `enviar-sheets` | Envia de novo ao Google Sheets as vagas novas da última busca (útil se o envio falhou). Não repete o que já está lá. |
+| `enviar-sheets --simular` | Mostra quais vagas novas passam no `filtro_sheets.toml` e quais seriam barradas. Não envia nada. Use para ajustar o filtro antes de enviar. |
 
 Opções gerais (vão **antes** do comando): `--banco caminho.db`, `--logs pasta` e `-v` (mostra cada requisição na tela). Exemplo: `python -m wb_trampo -v buscar`.
 
@@ -164,6 +165,7 @@ No fim de cada busca, as vagas **novas** vão para a sua planilha Google, em **a
 - Colunas: **Título, Empresa, Site, Local, Modalidade, Contrato, Link, Publicada em**. Na Gupy a data vem com hora; no LinkedIn, só o dia.
 - **A descrição não vai para o Sheets.** Ela fica no banco e no Excel.
 - Se a busca rodar de novo no mesmo dia, as vagas entram no fim da mesma aba, **sem repetir links**.
+- As vagas de cada envio saem em **ordem alfabética de título** (sem diferenciar maiúsculas nem acentos). Isso vale dentro de cada envio: uma vaga que entra depois numa aba já existente vai para o fim, não para o lugar alfabético.
 - A aba usa o dia da **busca**, não o do envio: um `enviar-sheets` no dia seguinte manda para a aba do dia em que a busca rodou.
 - Cada aba nova nasce formatada: cabeçalho em negrito e fixo, larguras ajustadas, texto longo cortado na célula e alinhado no topo.
 

@@ -260,16 +260,15 @@ nivel = ["estagio"]
 publicada = 86400
  
  
-# ----- Títulos em inglês (presencial/híbrido em SP) -----
+# ----- Títulos em inglês (presencial/híbrido em SP) ----- 
  
-[[buscas]]
-site = "linkedin"
-palavra_chave = '("software engineer intern" OR "software engineering intern" OR "backend intern" OR "data engineering intern" OR "developer intern")'
-local = "São Paulo e Região"
-nivel = ["estagio"]
-publicada = 86400
- 
- 
+#  [[buscas]]
+#  site = "linkedin"
+#  palavra_chave = '("software engineer intern" OR "software engineering intern" OR "backend intern" OR "data engineering intern" OR "developer intern")'
+#  local = "São Paulo e Região"
+#  nivel = ["estagio"]
+#  publicada = 86400
+  
 # ----- Programas de estágio -----
  
 [[buscas]]

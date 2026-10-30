@@ -146,9 +146,58 @@ def test_filtro_nao_afeta_o_banco(tmp_path):
     assert len(vagas_novas(banco)) == 2
 
 
+def test_separar_por_filtro_soma_tudo(tmp_path):
+    banco = _banco_com(tmp_path, [_vaga(1, tipo_contrato="Efetivo"), _vaga(2), _vaga(3, titulo=None)])
+    passaram, filtradas = sheets.separar_por_filtro(banco, "titulo LIKE '%Vaga 2%'")
+    assert [linha[sheets.COLUNA_LINK] for linha in passaram] == ["https://acme.gupy.io/job/2"]
+    # a vaga com título NULL não some: cai em "filtradas" (NOT (...) no SQL daria NULL)
+    # (sem título vem primeiro, por ordem alfabética)
+    assert [linha[sheets.COLUNA_LINK] for linha in filtradas] == [
+        "https://acme.gupy.io/job/3", "https://acme.gupy.io/job/1",
+    ]
+
+
+def test_simular_mostra_passam_e_filtradas_sem_enviar(tmp_path, monkeypatch, capsys):
+    _banco_com(tmp_path, [_vaga(1, tipo_contrato="Efetivo"), _vaga(2)]).fechar()
+    (tmp_path / "filtro_sheets.toml").write_text("filtro_sql = \"tipo_contrato = 'Estágio'\"\n", encoding="utf-8")
+
+    def post_proibido(*a, **k):
+        raise AssertionError("--simular não pode enviar")
+
+    monkeypatch.setattr(sheets.requests, "post", post_proibido)
+    codigo = cli.main(["--banco", str(tmp_path / "vagas.db"), "--logs", str(tmp_path / "logs"),
+                       "enviar-sheets", "--config", str(tmp_path / "config.toml"), "--simular"])
+    saida = capsys.readouterr().out
+    assert codigo == 0
+    assert "Passam: 1. Filtradas: 1." in saida
+    passam, filtradas = saida.split("== FILTRADAS ==")
+    assert "https://acme.gupy.io/job/2" in passam and "https://acme.gupy.io/job/1" not in passam
+    assert "https://acme.gupy.io/job/1" in filtradas
+
+
+def test_simular_sem_filtro_passa_tudo_e_nao_precisa_do_google_sheets(tmp_path, capsys):
+    _banco_com(tmp_path, [_vaga(1), _vaga(2)]).fechar()
+    codigo = cli.main(["--banco", str(tmp_path / "vagas.db"), "--logs", str(tmp_path / "logs"),
+                       "enviar-sheets", "--config", str(tmp_path / "config.toml"), "--simular"])
+    saida = capsys.readouterr().out
+    assert codigo == 0
+    assert "Sem filtro" in saida and "Passam: 2. Filtradas: 0." in saida
+
+
 def test_so_vagas_da_ultima_execucao(tmp_path):
     banco = _banco_com(tmp_path, [_vaga(1)], [_vaga(2)])
     assert [linha[0] for linha in vagas_novas(banco)] == ["Vaga 2"]
+
+
+def test_vagas_em_ordem_alfabetica_sem_acento_nem_maiuscula(tmp_path):
+    titulos = ["Zeladoria", "Vaga 2", "analista", "Última", "Ultimo", "Ávila"]
+    banco = _banco_com(tmp_path, [_vaga(n, titulo=t) for n, t in enumerate(titulos)])
+    assert [linha[0] for linha in vagas_novas(banco)] == ["analista", "Ávila", "Última", "Ultimo", "Vaga 2", "Zeladoria"]
+
+
+def test_mesmo_titulo_ordena_pela_empresa(tmp_path):
+    banco = _banco_com(tmp_path, [_vaga(1, titulo="Estágio", empresa="Zeta"), _vaga(2, titulo="Estágio", empresa="Alfa")])
+    assert [linha[1] for linha in vagas_novas(banco)] == ["Alfa", "Zeta"]
 
 
 def test_corta_texto_enorme_e_evita_formula(tmp_path):

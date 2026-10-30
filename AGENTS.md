@@ -213,7 +213,7 @@ tests/                  pytest, sem internet (fixtures em tests/fixtures/, clien
 ```powershell
 .venv\Scripts\python -m pytest
 ```
-Todos os testes devem passar (110 na última contagem). Os testes não acessam a internet. Para testes reais, use uma cópia do banco no diretório temporário, nunca `data/vagas.db`.
+Todos os testes devem passar (115 na última contagem). Os testes não acessam a internet. Para testes reais, use uma cópia do banco no diretório temporário, nunca `data/vagas.db`.
 
 ## Decisões tomadas com o usuário (não desfazer sem perguntar)
 
@@ -251,5 +251,6 @@ Todos os testes devem passar (110 na última contagem). Os testes não acessam a
 | `.venv\Scripts\python -m wb_trampo --banco copia.db buscar` | Busca usando outro banco (bom para testes). |
 | `.venv\Scripts\python -m wb_trampo exportar [--filtro texto] [--saida arq.xlsx]` | Gera o Excel a partir do banco (sem internet). |
 | `.venv\Scripts\python -m wb_trampo enviar-sheets` | Reenvia ao Sheets as vagas novas da última execução (só se o usuário pedir). |
+| `.venv\Scripts\python -m wb_trampo enviar-sheets --simular` | Mostra quais vagas passam no `filtro_sheets.toml` e quais seriam barradas. Não envia e não lê o `google_sheets.toml`. Pode rodar sem pedir. |
 | `.venv\Scripts\python -m wb_trampo -v buscar` | Mostra cada requisição na tela. |
 | `.venv\Scripts\python -m pytest` | Testes (sem internet). |

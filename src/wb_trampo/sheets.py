@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import unicodedata
 from collections.abc import Callable
 from datetime import date, datetime
 
@@ -32,6 +33,8 @@ COLUNAS = {
     "publicada_em": "Publicada em",  # Gupy: dia e hora; LinkedIn: só o dia
 }
 COLUNA_SITE = list(COLUNAS).index("site")
+COLUNA_LINK = list(COLUNAS).index("url")
+COLUNAS_TEXTO = (list(COLUNAS).index("titulo"), list(COLUNAS).index("empresa"))  # ordem alfabética
 NOME_SITE = {"linkedin": "LinkedIn", "gupy": "Gupy"}
 LIMITE_CELULA = 45_000  # o Google Sheets aceita no máximo 50.000 caracteres por célula
 COMO_CONFIGURAR = "Veja no README a seção 'Google Sheets'."
@@ -51,9 +54,21 @@ def _celula(valor) -> str:
     return texto
 
 
+def _chave_ordem(valores) -> tuple[str, str]:
+    """Título e empresa sem acento e sem maiúsculas (ex.: 'Última' fica entre 'Ultimo' e 'Vaga')."""
+
+    def normalizar(texto) -> str:
+        texto = "" if texto is None else str(texto)
+        texto = unicodedata.normalize("NFKD", texto)
+        return "".join(c for c in texto if not unicodedata.combining(c)).casefold()
+
+    return normalizar(valores[COLUNAS_TEXTO[0]]), normalizar(valores[COLUNAS_TEXTO[1]])
+
+
 def vagas_novas(banco: Banco, execucao: int | None = None, filtro_sql: str = "") -> list[list[str]]:
-    """Linhas (na ordem de COLUNAS) das vagas que apareceram pela 1ª vez na execução.
-    `filtro_sql` é uma condição do WHERE (vinda do filtro_sheets.toml); vazio = sem filtro."""
+    """Linhas (na ordem de COLUNAS) das vagas que apareceram pela 1ª vez na execução, em ordem
+    alfabética de título (depois empresa). `filtro_sql` é uma condição do WHERE (vinda do
+    filtro_sheets.toml); vazio = sem filtro."""
     if execucao is None:
         execucao = banco.ultima_execucao()
     if execucao is None:
@@ -62,7 +77,21 @@ def vagas_novas(banco: Banco, execucao: int | None = None, filtro_sql: str = "")
     cur = banco.con.execute(
         f"SELECT {', '.join(COLUNAS)} FROM vagas WHERE execucao = ?{extra} ORDER BY rowid", (execucao,)
     )
-    return [[_celula(v) for v in valores] for valores in cur]
+    # sorted é estável: vagas com o mesmo título e empresa mantêm a ordem de chegada
+    ordenadas = sorted(cur, key=_chave_ordem)
+    return [[_celula(v) for v in valores] for valores in ordenadas]
+
+
+def separar_por_filtro(
+    banco: Banco, filtro_sql: str, execucao: int | None = None
+) -> tuple[list[list[str]], list[list[str]]]:
+    """Devolve (passaram, filtradas) entre as vagas novas da execução. A separação é feita em
+    Python, pelo link: com título NULL, `NOT (filtro)` no SQL deixaria a vaga de fora das duas listas."""
+    todas = vagas_novas(banco, execucao)
+    passaram = vagas_novas(banco, execucao, filtro_sql=filtro_sql)
+    links_que_passaram = {linha[COLUNA_LINK] for linha in passaram}
+    filtradas = [linha for linha in todas if linha[COLUNA_LINK] not in links_que_passaram]
+    return passaram, filtradas
 
 
 def _postar(url: str, corpo: dict) -> dict:
