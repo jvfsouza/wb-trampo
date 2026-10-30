@@ -107,6 +107,35 @@ def test_exemplo_do_projeto_e_valido_menos_a_senha():
         carregar_sheets(RAIZ / "google_sheets.exemplo.toml")
 
 
+def test_sem_filtro_sheets_envia_tudo(tmp_path):
+    assert carregar(_toml(tmp_path, BUSCA_OK)).filtro_sheets.filtro_sql == ""
+
+
+def test_filtro_sheets_do_arquivo_separado(tmp_path):
+    (tmp_path / "filtro_sheets.toml").write_text(
+        "filtro_sql = '''\ntipo_contrato = 'Estágio'\n'''\n", encoding="utf-8"
+    )
+    assert carregar(_toml(tmp_path, BUSCA_OK)).filtro_sheets.filtro_sql == "tipo_contrato = 'Estágio'"
+
+
+@pytest.mark.parametrize("conteudo, erro", [
+    ("filtro_sql = \"titulo = 'x'; DROP TABLE vagas\"\n", "não pode ter ';'"),
+    ("filtro_sql = \"titulo = \"\n", "filtro_sql inválido"),
+    ("filtro_sql = \"coluna_que_nao_existe = 1\"\n", "filtro_sql inválido"),
+    ("filtro_sql = \"titulo = 'x'\"\nsql = 'x'\n", "campo desconhecido 'sql'"),
+])
+def test_filtro_sheets_erros(tmp_path, conteudo, erro):
+    (tmp_path / "filtro_sheets.toml").write_text(conteudo, encoding="utf-8")
+    with pytest.raises(ValueError, match=erro):
+        carregar(_toml(tmp_path, BUSCA_OK))
+
+
+def test_exemplo_de_filtro_do_projeto_e_valido():
+    from wb_trampo.config import carregar_filtro
+
+    assert carregar_filtro(RAIZ / "filtro_sheets.exemplo.toml").filtro_sql == ""
+
+
 def test_limites_novos(tmp_path):
     texto = (
         "[limites]\npausa_linkedin_min_s = 5\npausa_linkedin_max_s = 10\n"

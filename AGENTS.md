@@ -143,7 +143,7 @@ A planilha pode estar desatualizada ou cortada. Prefira o banco.
 ```
 src/wb_trampo/
   __main__.py      CLI (argparse): buscar, exportar, enviar-sheets; códigos de saída; intervalo mínimo
-  config.py        lê config.toml (Limites, Busca) e google_sheets.toml (GoogleSheets); valida tudo
+  config.py        lê config.toml (Limites, Busca), google_sheets.toml (GoogleSheets) e filtro_sheets.toml (FiltroSheets); valida tudo (o filtro_sql é testado com EXPLAIN num banco em memória)
   scraper.py       orquestra: para cada busca -> fonte.listar() -> já vista? -> fonte.detalhar() -> banco.salvar()
   cliente.py       HTTP "educado": pausa por host, teto de requisições, 429/999, contagem por host
   banco.py         SQLite: schema, migração (coluna site), upsert com COALESCE, execuções
@@ -213,7 +213,7 @@ tests/                  pytest, sem internet (fixtures em tests/fixtures/, clien
 ```powershell
 .venv\Scripts\python -m pytest
 ```
-Todos os testes devem passar (100 na última contagem). Os testes não acessam a internet. Para testes reais, use uma cópia do banco no diretório temporário, nunca `data/vagas.db`.
+Todos os testes devem passar (110 na última contagem). Os testes não acessam a internet. Para testes reais, use uma cópia do banco no diretório temporário, nunca `data/vagas.db`.
 
 ## Decisões tomadas com o usuário (não desfazer sem perguntar)
 
@@ -232,6 +232,7 @@ Todos os testes devem passar (100 na última contagem). Os testes não acessam a
 | Google Sheets via **Apps Script** (não conta de serviço nem OAuth) | Configuração mais simples; o usuário tentou e preferiu essa. |
 | Sheets: abas por **site e dia da busca**, **sem descrição**, com **Publicada em** | Pedidos do usuário. |
 | Link e senha do Sheets em `google_sheets.toml` (fora do git) | Segurança: o `config.toml` pode ir para o git. |
+| Filtro do Sheets em `filtro_sheets.toml` (`filtro_sql`, condição do WHERE), separado do `config.toml` | Pedido do usuário. Só afeta a planilha; banco e Excel seguem com tudo. |
 
 ## Pendências e ideias (ainda não feitas)
 

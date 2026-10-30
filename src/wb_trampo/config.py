@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 import tomllib
 from dataclasses import dataclass, field, fields
 from pathlib import Path
@@ -49,10 +50,22 @@ ARQUIVO_SHEETS = "google_sheets.toml"
 
 
 @dataclass
+class FiltroSheets:
+    """Lido de filtro_sheets.toml. Condição SQL (trecho do WHERE) sobre a tabela vagas.
+    Vazia (ou sem o arquivo) = envia todas as vagas novas."""
+
+    filtro_sql: str = ""
+
+
+ARQUIVO_FILTRO = "filtro_sheets.toml"
+
+
+@dataclass
 class Config:
     buscas: list[Busca]
     limites: Limites
     google_sheets: GoogleSheets | None = None
+    filtro_sheets: FiltroSheets = field(default_factory=FiltroSheets)
 
 
 def _checar_campos(dados: dict, classe: type, onde: str) -> None:
@@ -118,7 +131,41 @@ def carregar(caminho: str | Path) -> Config:
             "(veja o README, seção 'Google Sheets'). Apague-a do config.toml."
         )
     google_sheets = carregar_sheets(Path(caminho).with_name(ARQUIVO_SHEETS))
-    return Config(buscas=buscas, limites=limites, google_sheets=google_sheets)
+    filtro_sheets = carregar_filtro(Path(caminho).with_name(ARQUIVO_FILTRO))
+    return Config(buscas=buscas, limites=limites, google_sheets=google_sheets, filtro_sheets=filtro_sheets)
+
+
+def carregar_filtro(caminho: str | Path) -> FiltroSheets:
+    """Lê filtro_sheets.toml. Sem o arquivo, ou com filtro_sql vazio, nada é filtrado."""
+    caminho = Path(caminho)
+    if not caminho.exists():
+        return FiltroSheets()
+    with open(caminho, "rb") as f:
+        try:
+            dados = tomllib.load(f)
+        except tomllib.TOMLDecodeError as erro:
+            raise ValueError(f"{caminho.name} tem um erro de escrita: {erro}") from None
+    _checar_campos(dados, FiltroSheets, caminho.name)
+    filtro = FiltroSheets(filtro_sql=str(dados.get("filtro_sql", "")).strip())
+    if filtro.filtro_sql:
+        _validar_filtro_sql(filtro.filtro_sql, caminho.name)
+    return filtro
+
+
+def _validar_filtro_sql(condicao: str, nome: str) -> None:
+    """Falha cedo se a condição tiver ';' ou não for um SQL válido sobre a tabela vagas."""
+    from .banco import Banco  # import aqui evita import circular e custo fora de uso
+
+    if ";" in condicao:
+        raise ValueError(f"{nome}: o filtro_sql não pode ter ';' (escreva só a condição do WHERE)")
+    banco = Banco(":memory:")
+    try:
+        # EXPLAIN só compila a consulta: confere a sintaxe e os nomes de colunas sem ler dados
+        banco.con.execute(f"EXPLAIN SELECT 1 FROM vagas WHERE ({condicao})")
+    except sqlite3.Error as erro:
+        raise ValueError(f"{nome}: filtro_sql inválido ({erro})") from None
+    finally:
+        banco.fechar()
 
 
 def carregar_sheets(caminho: str | Path) -> GoogleSheets | None:

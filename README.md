@@ -195,6 +195,7 @@ O envio é feito por um pequeno **Apps Script** ([`apps_script/Codigo.gs`](apps_
 - **Mudou o script** (por exemplo, uma versão nova do `Codigo.gs`)? Cole o código novo e vá em **Implantar > Gerenciar implantações > lápis > Versão: Nova versão > Implantar**. Assim o link continua o mesmo. Sem isso, a planilha continua rodando a versão antiga.
 - **Larguras das colunas:** ajuste os números em `LARGURAS`, no topo do script.
 - **Desligar o envio:** apague ou renomeie o `google_sheets.toml`, ou use `buscar --sem-sheets` só uma vez.
+- **Filtrar o que vai para a planilha:** copie `filtro_sheets.exemplo.toml` para **`filtro_sheets.toml`** e escreva uma condição SQL em `filtro_sql` (o trecho depois do `WHERE`, sem `;`). Ex.: `tipo_contrato = 'Estágio' AND titulo NOT LIKE '%sênior%'`. Só a planilha é filtrada; o banco e o Excel continuam com tudo. Sem o arquivo, ou com `filtro_sql` vazio, vai tudo. Se a condição tiver erro, o robô avisa na hora ao ler a configuração.
 - **Segurança:** o `google_sheets.toml` está no `.gitignore`. Não compartilhe o link nem a senha: quem tiver os dois consegue escrever na planilha.
 - **Se o envio falhar:** o banco e o Excel continuam salvos, o log explica o motivo (senha errada, implantação sem "Qualquer pessoa", sem internet...) e o código de saída é `1`. Corrija e rode `enviar-sheets`.
 
@@ -257,6 +258,7 @@ Para saber onde parou, procure no arquivo por `ERROR` ou `WARNING`. As últimas 
 |---|---|
 | `config.toml` | Suas buscas e limites. |
 | `google_sheets.toml` | Link e senha do Apps Script. **Fora do git**; o modelo é `google_sheets.exemplo.toml`. |
+| `filtro_sheets.toml` | Condição SQL (`filtro_sql`) para escolher as vagas enviadas ao Sheets. Opcional; o modelo é `filtro_sheets.exemplo.toml`. |
 | `apps_script/Codigo.gs` | O script que você cola na planilha Google. |
 | `src/wb_trampo/` | Código do robô ([detalhes no AGENTS.md](AGENTS.md#como-o-código-está-organizado)). |
 | `tests/` | Testes automáticos (não acessam a internet). |
