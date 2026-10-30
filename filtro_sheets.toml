@@ -1,0 +1,36 @@
+# Filtro para o envio ao Google Sheets.
+#
+# Copie este arquivo para filtro_sheets.toml (ao lado do config.toml) e ajuste.
+# Sem o arquivo, ou com filtro_sql vazio, o robô envia todas as vagas novas.
+#
+# filtro_sql é a condição do WHERE sobre a tabela vagas (sem a palavra WHERE e sem ';').
+# Só afeta a planilha: o banco e o Excel continuam com tudo.
+#
+# Colunas úteis:
+#   titulo, empresa, local, modalidade (Gupy: Presencial/Híbrido/Remoto),
+#   tipo_contrato (Estágio, Efetivo, PJ, ...), nivel, site ('gupy' ou 'linkedin'),
+#   publicada_em (texto "AAAA-MM-DD" ou "AAAA-MM-DD HH:MM")
+#
+# Atenção: LIKE não ignora acentos, então procure as duas formas (estágio e estagio).
+# No LinkedIn, modalidade é o filtro usado na busca, não um dado da vaga.
+#
+# Exemplo: só estágios remotos ou híbridos, sem vagas sênior:
+# filtro_sql = '''
+# (tipo_contrato = 'Estágio' OR titulo LIKE '%estágio%' OR titulo LIKE '%estagio%')
+# AND modalidade IN ('Remoto', 'Híbrido')
+# AND titulo NOT LIKE '%sênior%' AND titulo NOT LIKE '%senior%'
+# '''
+#
+# Exemplo: excluir empresas:
+# filtro_sql = '''
+# empresa NOT IN ('Empresa A', 'Empresa B')
+# '''
+
+filtro_sql = '''
+titulo NOT LIKE '%sênior%' AND titulo NOT LIKE '%SÊNIOR%'
+AND titulo NOT LIKE '%senior%'
+AND titulo NOT LIKE '%pleno%'
+AND titulo NOT LIKE '%analista%'
+AND titulo NOT LIKE '%consultor%'
+AND titulo NOT LIKE 'sr %' AND titulo NOT LIKE '% sr %' AND titulo NOT LIKE '% sr.%' AND titulo NOT LIKE '% sr'
+'''

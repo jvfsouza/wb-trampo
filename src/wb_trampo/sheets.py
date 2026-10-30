@@ -51,14 +51,16 @@ def _celula(valor) -> str:
     return texto
 
 
-def vagas_novas(banco: Banco, execucao: int | None = None) -> list[list[str]]:
-    """Linhas (na ordem de COLUNAS) das vagas que apareceram pela 1ª vez na execução."""
+def vagas_novas(banco: Banco, execucao: int | None = None, filtro_sql: str = "") -> list[list[str]]:
+    """Linhas (na ordem de COLUNAS) das vagas que apareceram pela 1ª vez na execução.
+    `filtro_sql` é uma condição do WHERE (vinda do filtro_sheets.toml); vazio = sem filtro."""
     if execucao is None:
         execucao = banco.ultima_execucao()
     if execucao is None:
         return []
+    extra = f" AND ({filtro_sql})" if filtro_sql else ""
     cur = banco.con.execute(
-        f"SELECT {', '.join(COLUNAS)} FROM vagas WHERE execucao = ? ORDER BY rowid", (execucao,)
+        f"SELECT {', '.join(COLUNAS)} FROM vagas WHERE execucao = ?{extra} ORDER BY rowid", (execucao,)
     )
     return [[_celula(v) for v in valores] for valores in cur]
 
@@ -104,10 +106,15 @@ def enviar_novas(
     conf: GoogleSheets,
     postar: Callable[[str, dict], dict] = _postar,
     hoje: date | None = None,
+    filtro_sql: str = "",
 ) -> int:
     """Manda as vagas novas da última execução para abas separadas por site, com o dia da busca
-    no nome (ex.: '2026-10-27 Gupy'). O script não repete links. Devolve quantas entraram."""
-    linhas = vagas_novas(banco)
+    no nome (ex.: '2026-10-27 Gupy'). O script não repete links. Devolve quantas entraram.
+    Só vão as vagas que passam em `filtro_sql` (ver filtro_sheets.toml)."""
+    linhas = vagas_novas(banco, filtro_sql=filtro_sql)
+    if filtro_sql:
+        total_novas = len(vagas_novas(banco))
+        log.info("Google Sheets: %d vagas novas, %d passaram no filtro.", total_novas, len(linhas))
     if not linhas:
         log.info("Google Sheets: nenhuma vaga nova para enviar.")
         return 0

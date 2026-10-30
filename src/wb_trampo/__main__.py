@@ -34,7 +34,7 @@ def _enviar_sheets(banco: Banco, config: cfg.Config) -> int:
     if config.google_sheets is None:
         return 0
     try:
-        enviar_novas(banco, config.google_sheets)
+        enviar_novas(banco, config.google_sheets, filtro_sql=config.filtro_sheets.filtro_sql)
         return 0
     except ErroSheets as erro:
         log.error("Google Sheets: %s", erro)

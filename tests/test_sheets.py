@@ -121,6 +121,31 @@ def test_senha_errada(tmp_path):
         enviar_novas(banco, CONF, postar=ScriptFalso(senha="outra"), hoje=HOJE)
 
 
+def test_filtro_sql_escolhe_o_que_vai_para_a_planilha(tmp_path):
+    banco = _banco_com(tmp_path, [_vaga(1, tipo_contrato="Efetivo"), _vaga(2), _vaga(3, titulo="Vaga Sênior")])
+    script = ScriptFalso()
+    filtro = "tipo_contrato = 'Estágio' AND titulo NOT LIKE '%Sênior%'"
+    assert enviar_novas(banco, CONF, postar=script, hoje=HOJE, filtro_sql=filtro) == 1
+    assert [linha[0] for linha in script.abas["2026-10-27 Gupy"][1:]] == ["Vaga 2"]
+
+
+def test_filtro_que_zera_tudo_nao_chama_o_script(tmp_path, caplog):
+    banco = _banco_com(tmp_path, [_vaga(1)])
+
+    def postar(url, corpo):
+        raise AssertionError("não deveria enviar")
+
+    with caplog.at_level(logging.INFO):
+        assert enviar_novas(banco, CONF, postar=postar, hoje=HOJE, filtro_sql="modalidade = 'Remoto'") == 0
+    assert "1 vagas novas, 0 passaram no filtro" in caplog.text
+
+
+def test_filtro_nao_afeta_o_banco(tmp_path):
+    banco = _banco_com(tmp_path, [_vaga(1), _vaga(2, tipo_contrato="Efetivo")])
+    vagas_novas(banco, filtro_sql="tipo_contrato = 'Estágio'")
+    assert len(vagas_novas(banco)) == 2
+
+
 def test_so_vagas_da_ultima_execucao(tmp_path):
     banco = _banco_com(tmp_path, [_vaga(1)], [_vaga(2)])
     assert [linha[0] for linha in vagas_novas(banco)] == ["Vaga 2"]

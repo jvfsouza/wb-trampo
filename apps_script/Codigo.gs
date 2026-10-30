@@ -77,6 +77,7 @@ function doPost(e) {
         .setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP)
         .setVerticalAlignment('top');
     }
+    colorirLinhas(aba, cabecalho.length);
     return resposta({
       ok: true,
       aba: dados.aba,
@@ -87,6 +88,14 @@ function doPost(e) {
   } finally {
     trava.releaseLock();
   }
+}
+
+// Linhas alternadas (cinza claro e branco). Recria a faixa a cada envio, para cobrir as linhas novas.
+function colorirLinhas(aba, numColunas) {
+  aba.getBandings().forEach(function (faixa) { faixa.remove(); });
+  aba
+    .getRange(1, 1, aba.getMaxRows(), numColunas)
+    .applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY, true, false);
 }
 
 function resposta(objeto) {
